@@ -6,6 +6,7 @@ import { runExtract } from './extract.js';
 import { runIngest } from './ingest.js';
 import { Logger } from './logger.js';
 import { estimateResearchCostUsd, getPendingApps, runResearch } from './research.js';
+import { formatSummary, runOutput } from './output.js';
 import { runSynthesize } from './synthesize.js';
 
 const STAGES = ['ingest', 'extract', 'research', 'synthesize'] as const;
@@ -151,6 +152,13 @@ async function main(): Promise<void> {
           break;
         }
       }
+    }
+
+    // Stage 5: summary table + CSV export, after a full run or synthesize.
+    if (stages.includes('synthesize')) {
+      const summary = runOutput(db, { channelUrl: values.channel });
+      logger.info(`Output: CSV written to ${summary.csvPath}`);
+      console.log(formatSummary(summary));
     }
   } finally {
     db.close();
