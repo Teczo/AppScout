@@ -6,6 +6,7 @@ import { runExtract } from './extract.js';
 import { runIngest } from './ingest.js';
 import { Logger } from './logger.js';
 import { estimateResearchCostUsd, getPendingApps, runResearch } from './research.js';
+import { runSynthesize } from './synthesize.js';
 
 const STAGES = ['ingest', 'extract', 'research', 'synthesize'] as const;
 type Stage = (typeof STAGES)[number];
@@ -134,10 +135,21 @@ async function main(): Promise<void> {
           );
           break;
         }
-        case 'synthesize':
-          logger.warn(`Stage "${stage}" is not implemented yet (Phase 1 is being built stage by stage).`);
-          if (values.stage) process.exitCode = 1;
-          return;
+        case 'synthesize': {
+          const result = await runSynthesize(db, logger, {
+            anthropicApiKey: config.anthropicApiKey,
+            channelUrl: values.channel,
+          });
+          if (result.skipped) {
+            console.log('\nSynthesize: report already up to date; skipped.');
+          } else {
+            console.log(
+              `\nSynthesize summary: report over ${result.appsInCorpus} apps written to ${result.reportPath}. ` +
+                `Tokens: ${result.usage.inputTokens} in / ${result.usage.outputTokens} out.`,
+            );
+          }
+          break;
+        }
       }
     }
   } finally {
