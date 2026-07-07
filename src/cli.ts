@@ -1,9 +1,11 @@
+import readline from 'node:readline/promises';
 import { parseArgs } from 'node:util';
 import { loadConfig, type RequiredKey } from './config.js';
 import { getStatusCounts, openDb } from './db.js';
 import { runExtract } from './extract.js';
 import { runIngest } from './ingest.js';
 import { Logger } from './logger.js';
+import { estimateResearchCostUsd, getPendingApps, runResearch } from './research.js';
 
 const STAGES = ['ingest', 'extract', 'research', 'synthesize'] as const;
 type Stage = (typeof STAGES)[number];
@@ -106,7 +108,32 @@ async function main(): Promise<void> {
           );
           break;
         }
-        case 'research':
+        case 'research': {
+          const pendingApps = getPendingApps(db);
+          if (pendingApps.length === 0) {
+            console.log('\nResearch: no pending apps.');
+            break;
+          }
+          const estimate = estimateResearchCostUsd(pendingApps.length, config.maxResearchIterations);
+          console.log(
+            `\nResearch will cover ${pendingApps.length} unique app(s) at up to ` +
+              `${config.maxResearchIterations} searches each.\nEstimated cost: ~$${estimate.toFixed(2)}`,
+          );
+          if (!(await confirmRun(values.confirm))) {
+            console.log('Research aborted. Re-run with --confirm (or answer y) to proceed.');
+            return;
+          }
+          const result = await runResearch(db, logger, {
+            anthropicApiKey: config.anthropicApiKey,
+            maxIterations: config.maxResearchIterations,
+          });
+          console.log(
+            `\nResearch summary: ${result.appsResearched} apps researched (${JSON.stringify(result.statusCounts)}), ` +
+              `${result.appsFailed} failed (left pending), ${result.searchesUsed} searches. ` +
+              `Tokens: ${result.usage.inputTokens} in / ${result.usage.outputTokens} out.`,
+          );
+          break;
+        }
         case 'synthesize':
           logger.warn(`Stage "${stage}" is not implemented yet (Phase 1 is being built stage by stage).`);
           if (values.stage) process.exitCode = 1;
@@ -115,6 +142,19 @@ async function main(): Promise<void> {
     }
   } finally {
     db.close();
+  }
+}
+
+/** Cost gate: --confirm skips the prompt; otherwise interactive y/n (abort when not a TTY). */
+async function confirmRun(confirmFlag: boolean): Promise<boolean> {
+  if (confirmFlag) return true;
+  if (!process.stdin.isTTY) return false;
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const answer = await rl.question('Proceed? [y/N] ');
+    return answer.trim().toLowerCase() === 'y';
+  } finally {
+    rl.close();
   }
 }
 
