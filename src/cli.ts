@@ -1,6 +1,7 @@
 import { parseArgs } from 'node:util';
 import { loadConfig, type RequiredKey } from './config.js';
 import { getStatusCounts, openDb } from './db.js';
+import { runExtract } from './extract.js';
 import { runIngest } from './ingest.js';
 import { Logger } from './logger.js';
 
@@ -97,7 +98,14 @@ async function main(): Promise<void> {
           );
           break;
         }
-        case 'extract':
+        case 'extract': {
+          const result = await runExtract(db, logger, { anthropicApiKey: config.anthropicApiKey });
+          console.log(
+            `\nExtract summary: ${result.videosProcessed} videos processed, ${result.videosFailed} failed, ` +
+              `${result.appsExtracted} apps extracted. Tokens: ${result.usage.inputTokens} in / ${result.usage.outputTokens} out.`,
+          );
+          break;
+        }
         case 'research':
         case 'synthesize':
           logger.warn(`Stage "${stage}" is not implemented yet (Phase 1 is being built stage by stage).`);
