@@ -1,0 +1,11 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/inngest/route": "app/api/inngest/route.js",
+  "/api/estimate/route": "app/api/estimate/route.js",
+  "/api/channels/[id]/chat/route": "app/api/channels/[id]/chat/route.js",
+  "/api/runs/route": "app/api/runs/route.js",
+  "/api/runs/[id]/route": "app/api/runs/[id]/route.js",
+  "/runs/[id]/page": "app/runs/[id]/page.js",
+  "/channels/[id]/page": "app/channels/[id]/page.js",
+  "/page": "app/page.js"
+}

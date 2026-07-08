@@ -9,7 +9,10 @@
   },
   "scripts": {
     "pipeline": "tsx src/cli.ts",
-    "build": "tsc",
+    "dev": "next dev",
+    "web:build": "next build",
+    "start": "next start",
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
@@ -17,14 +20,22 @@
     "@anthropic-ai/sdk": "^0.110.0",
     "better-sqlite3": "^11.10.0",
     "dotenv": "^16.4.5",
+    "inngest": "^3.54.2",
+    "next": "^15.5.20",
+    "pg": "^8.22.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "youtube-transcript": "^1.2.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^22.10.0",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^4.1.10"
   }
 }

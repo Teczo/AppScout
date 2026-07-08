@@ -224,9 +224,8 @@ for free. Fine for low-stakes use; runner IPs are datacenter IPs, so the transcr
    invocations.
 3. **Transcript scraping from Vercel's IPs** is the most likely of all platforms to be blocked.
 
-Vercel is the natural home for **Phase 2** (per CLAUDE.md's preview — remember Phase 2 needs
-explicit approval before any web code is written). When that day comes, this is the architecture
-and setup:
+Vercel is the home for **Phase 2** — the Next.js app now in this repo (`app/` + `src/server/`),
+approved and built on the Postgres + Inngest architecture below:
 
 ### 4.1 Phase 2 shape on Vercel
 
@@ -238,10 +237,13 @@ and setup:
 | report/CSV files | stored in **Vercel Blob** or rendered from DB |
 | interactive `--confirm` | confirmation modal with the same cost estimate |
 
-### 4.2 Vercel setup steps (when approved)
+### 4.2 Vercel setup steps
 
+0. **Local dev first**: `npm run dev` (Next.js on :3000) + `npx inngest-cli@latest dev` (Inngest
+   dev server on :8288, auto-discovers `/api/inngest`) + a `DATABASE_URL` pointing at any
+   Postgres (Neon free tier works; schema auto-creates on first query).
 1. **Import the repo**: https://vercel.com/new → import `Teczo/AppScout` → framework preset
-   Next.js (once the app exists in the repo).
+   Next.js (auto-detected).
 2. **Environment variables** (Project → Settings → Environment Variables, or CLI):
    ```bash
    npm i -g vercel && vercel login && vercel link

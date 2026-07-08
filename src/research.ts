@@ -115,7 +115,14 @@ export interface ResearchClient {
   };
 }
 
-interface AppToResearch {
+/** Minimal logger surface for the per-app core loop (Logger satisfies it). */
+export interface LoggerLike {
+  info(message: string): void;
+  warn(message: string): void;
+  error(message: string): void;
+}
+
+export interface AppToResearch {
   id: number;
   name: string;
   description: string | null;
@@ -222,12 +229,12 @@ export async function runResearch(
 }
 
 /** Agent loop for one app. Returns validated output plus the number of searches used. */
-async function researchApp(
+export async function researchApp(
   client: ResearchClient,
   app: AppToResearch,
   maxIterations: number,
   usage: { inputTokens: number; outputTokens: number },
-  logger: Logger,
+  logger: LoggerLike,
 ): Promise<{ output: ResearchOutput; searches: number }> {
   const tools: Anthropic.MessageCreateParamsNonStreaming['tools'] = [
     { type: 'web_search_20260209', name: 'web_search', max_uses: maxIterations },

@@ -1,11 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type Database from 'better-sqlite3';
 import { z } from 'zod';
-import { normalizeAppName } from './db.js';
 import type { Logger } from './logger.js';
+import { normalizeAppName } from './util.js';
 
 export const EXTRACTION_MODEL = 'claude-haiku-4-5';
-const TRANSCRIPT_CHAR_LIMIT = 50_000;
+export const TRANSCRIPT_CHAR_LIMIT = 50_000;
 
 const ExtractedAppSchema = z.object({
   name: z.string().min(1),
@@ -164,7 +164,7 @@ export async function runExtract(
 }
 
 /** One extraction call; on Zod failure, one retry with the validation error appended. */
-async function extractFromTranscript(
+export async function extractFromTranscript(
   client: ExtractClient,
   transcript: string,
   usage: { inputTokens: number; outputTokens: number },

@@ -173,7 +173,7 @@ export async function runSynthesize(
 }
 
 /** Single synthesis call; one retry with the validation error appended. */
-async function synthesizeReport(
+export async function synthesizeReport(
   client: SynthesizeClient,
   corpus: Record<string, unknown>[],
   usage: { inputTokens: number; outputTokens: number },

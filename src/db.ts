@@ -94,10 +94,7 @@ export function openDb(dbPath: string): Database.Database {
   return db;
 }
 
-/** Dedup key for apps: lowercase, whitespace stripped. */
-export function normalizeAppName(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, '');
-}
+export { normalizeAppName } from './util.js';
 
 export function upsertChannel(
   db: Database.Database,
